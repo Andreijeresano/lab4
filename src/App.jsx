@@ -30,7 +30,11 @@ function App() {
       setDebouncedSearch(searchText);
     }, 300);
 
-    return () => clearTimeout(timer);
+    useEffect(() => {
+    document.title = `CvSU Mini Store (${filteredProducts.length} results)`;
+  }, [filteredProducts.length]);
+
+  return () => clearTimeout(timer);
   }, [searchText]);
 
   // Derive the visible products without changing the original array.
@@ -72,8 +76,14 @@ function App() {
         />
         <div className="section-heading">
           <h2>Product Catalog</h2>
-          <span>{products.length} products</span>
+          <span aria-live="polite">Showing {filteredProducts.length} of {products.length} products</span>
         </div>
+        {filteredProducts.length === 0 ? (
+          <div className="empty-state" role="status">
+            <h3>No products found.</h3>
+            <p>Try a different keyword or category.</p>
+          </div>
+        ) : (
         <section className="product-grid" aria-label="Products">
           {filteredProducts.map((product) => (
             <ProductCard
@@ -89,8 +99,9 @@ function App() {
             </ProductCard>
           ))}
         </section>
+        )}
       </main>
-      <footer>DCIT26 · Laboratory Exercise 3</footer>
+      <footer>DCIT26 · Laboratory Exercise 4</footer>
     </>
   );
 }
