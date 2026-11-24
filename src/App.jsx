@@ -1,15 +1,25 @@
 import './App.css';
 import { useState } from 'react';
+import SearchBar from './components/SearchBar.jsx';
 import ProductCard from './components/ProductCard.jsx';
 import products from './data/products.js';
 
 function App() {
+  const [searchText, setSearchText] = useState('');
+  const [category, setCategory] = useState('All');
+  const [sortOrder, setSortOrder] = useState('default');
   const [cartCount, setCartCount] = useState(0);
   const [lastAdded, setLastAdded] = useState('');
 
   function handleAddToCart(title) {
     setCartCount((previousCount) => previousCount + 1);
     setLastAdded(title);
+  }
+
+  function clearFilters() {
+    setSearchText('');
+    setCategory('All');
+    setSortOrder('default');
   }
 
   return (
@@ -27,6 +37,15 @@ function App() {
           <p>{cartCount === 0 ? 'Your cart is empty.' :
             `Items added to cart: ${cartCount} (Last added: ${lastAdded})`}</p>
         </section>
+        <SearchBar
+          searchText={searchText}
+          onSearchChange={setSearchText}
+          category={category}
+          onCategoryChange={setCategory}
+          sortOrder={sortOrder}
+          onSortChange={setSortOrder}
+          onClearFilters={clearFilters}
+        />
         <div className="section-heading">
           <h2>Product Catalog</h2>
           <span>{products.length} products</span>
