@@ -1,3 +1,7 @@
+# CvSU Mini Store
+
+DCIT26 — Laboratory Exercise 4: React useState and useEffect (Live Search and Filter)
+
 ## Guide questions — Laboratory Exercise 4
 
 **1. Why do we use two separate states, searchText and debouncedSearch, instead of only one?**
