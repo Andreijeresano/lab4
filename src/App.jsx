@@ -30,11 +30,7 @@ function App() {
       setDebouncedSearch(searchText);
     }, 300);
 
-    useEffect(() => {
-    document.title = `CvSU Mini Store (${filteredProducts.length} results)`;
-  }, [filteredProducts.length]);
-
-  return () => clearTimeout(timer);
+    return () => clearTimeout(timer);
   }, [searchText]);
 
   // Derive the visible products without changing the original array.
@@ -49,6 +45,10 @@ function App() {
   } else if (sortOrder === 'high-to-low') {
     filteredProducts.sort((a, b) => b.price - a.price);
   }
+
+  useEffect(() => {
+    document.title = `CvSU Mini Store (${filteredProducts.length} results)`;
+  }, [filteredProducts.length]);
 
   return (
     <>
@@ -84,21 +84,21 @@ function App() {
             <p>Try a different keyword or category.</p>
           </div>
         ) : (
-        <section className="product-grid" aria-label="Products">
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              title={product.title}
-              price={product.price}
-              category={product.category}
-              inStock={product.inStock}
-              onAddToCart={handleAddToCart}
-            >
-              {product.id === 1 && <span className="badge new">New</span>}
-              {product.id === 4 && <span className="badge sale">Sale</span>}
-            </ProductCard>
-          ))}
-        </section>
+          <section className="product-grid" aria-label="Products">
+            {filteredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                title={product.title}
+                price={product.price}
+                category={product.category}
+                inStock={product.inStock}
+                onAddToCart={handleAddToCart}
+              >
+                {product.id === 1 && <span className="badge new">New</span>}
+                {product.id === 4 && <span className="badge sale">Sale</span>}
+              </ProductCard>
+            ))}
+          </section>
         )}
       </main>
       <footer>DCIT26 · Laboratory Exercise 4</footer>
