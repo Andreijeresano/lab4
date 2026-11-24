@@ -22,6 +22,19 @@ function App() {
     setSortOrder('default');
   }
 
+  // Derive the visible products without changing the original array.
+  const filteredProducts = [...products].filter((product) => {
+    const matchesSearch = product.title.toLowerCase().includes(searchText.trim().toLowerCase());
+    const matchesCategory = category === 'All' || product.category === category;
+    return matchesSearch && matchesCategory;
+  });
+
+  if (sortOrder === 'low-to-high') {
+    filteredProducts.sort((a, b) => a.price - b.price);
+  } else if (sortOrder === 'high-to-low') {
+    filteredProducts.sort((a, b) => b.price - a.price);
+  }
+
   return (
     <>
       <header className="site-header">
@@ -51,7 +64,7 @@ function App() {
           <span>{products.length} products</span>
         </div>
         <section className="product-grid" aria-label="Products">
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <ProductCard
               key={product.id}
               title={product.title}
