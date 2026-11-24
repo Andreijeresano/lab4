@@ -1,11 +1,12 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SearchBar from './components/SearchBar.jsx';
 import ProductCard from './components/ProductCard.jsx';
 import products from './data/products.js';
 
 function App() {
   const [searchText, setSearchText] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [category, setCategory] = useState('All');
   const [sortOrder, setSortOrder] = useState('default');
   const [cartCount, setCartCount] = useState(0);
@@ -18,13 +19,23 @@ function App() {
 
   function clearFilters() {
     setSearchText('');
+    setDebouncedSearch('');
     setCategory('All');
     setSortOrder('default');
   }
 
+  // Wait until the user pauses typing before applying the search.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchText);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchText]);
+
   // Derive the visible products without changing the original array.
   const filteredProducts = [...products].filter((product) => {
-    const matchesSearch = product.title.toLowerCase().includes(searchText.trim().toLowerCase());
+    const matchesSearch = product.title.toLowerCase().includes(debouncedSearch.trim().toLowerCase());
     const matchesCategory = category === 'All' || product.category === category;
     return matchesSearch && matchesCategory;
   });
