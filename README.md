@@ -1,14 +1,14 @@
 # CvSU Mini Store
 
-DCIT26 — Laboratory Exercise 3: React Props and Component Communication
+DCIT26 — Laboratory Exercise 4: React useState and useEffect (Live Search and Filter)
 
-A mini product catalog built with React, Vite and plain CSS. It uses the eight sample products in Table 1 of the laboratory handout, including two out-of-stock products. No database, backend or paid service is needed.
+This is an extension of Laboratory Exercise 3. The original eight products, reusable ProductCard, stock labels, badges, and cart are retained. Lab 4 adds controlled search and filter inputs, price sorting, a 300 ms search debounce, a result count, and a browser tab title effect.
 
 ## Run the project
 
-1. Install Node.js 22 (LTS or a newer supported LTS version) from https://nodejs.org/ if needed.
+1. Install Node.js 22 LTS or a newer supported LTS version and Git if needed.
 2. Extract the ZIP and open the `product-catalog` folder in VS Code.
-3. Open Terminal > New Terminal. Make sure the current folder contains `package.json`.
+3. Open Terminal > New Terminal. Confirm the folder contains `package.json`.
 4. Run:
 
    ```bash
@@ -16,8 +16,7 @@ A mini product catalog built with React, Vite and plain CSS. It uses the eight s
    npm run dev
    ```
 
-5. Open the Local URL printed in the terminal (usually http://localhost:5173/).
-6. To stop the development server, press Ctrl+C. To make a production build, run `npm run build`.
+5. Open the Local URL shown in the terminal (usually http://localhost:5173/). Stop the server with Ctrl+C. Run `npm run build` to create a production build.
 
 ## Project structure
 
@@ -25,7 +24,8 @@ A mini product catalog built with React, Vite and plain CSS. It uses the eight s
 product-catalog/
 ├── src/
 │   ├── components/
-│   │   └── ProductCard.jsx
+│   │   ├── ProductCard.jsx
+│   │   └── SearchBar.jsx
 │   ├── data/
 │   │   └── products.js
 │   ├── App.jsx
@@ -38,55 +38,83 @@ product-catalog/
 └── README.md
 ```
 
-## Guide questions
+## Guide questions — Laboratory Exercise 4
 
-**1. What is the difference between props and state?**
-Props are values passed from a parent component to a child component. State is data managed by a component that can change over time and cause the component to render again.
+**1. Why do we use two separate states, searchText and debouncedSearch, instead of only one?**
 
-**2. Why can a child component not modify the props it receives?**
-Props are read-only because the parent owns the data. Changing props directly would make the flow of data unpredictable, so the child should ask the parent to update the data instead.
+`searchText` changes immediately so the input always shows what the user types. `debouncedSearch` changes only after a 300 ms pause, so filtering does not need to run with each new keyword while the user is typing. The component can still render for other state changes.
 
-**3. How does the onAddToCart callback allow data to flow from child to parent even though props only flow downward?**
-App passes its handleAddToCart function to ProductCard as a prop. When the user clicks Add to Cart, ProductCard calls that function with its product title, and App updates its cart state.
+**2. What would happen if the debounce effect did not return a cleanup function?**
 
-**4. Why is the key prop required when rendering a list with .map()? What could happen if it is missing or duplicated?**
-A unique key helps React identify each item when a list changes. Missing or duplicate keys can cause warnings and incorrect reuse of components or their state.
+Old timers would keep running even when the user types another character. They could apply intermediate search values and cause unnecessary updates. The cleanup cancels the previous timer when the keyword changes or the component unmounts.
 
-**5. What does the children prop allow you to do that a normal prop does not?**
-The children prop lets a parent place nested JSX between the opening and closing tags of a component. In this project it lets App insert New and Sale labels without creating a separate prop for each label.
+**3. What is the purpose of the dependency array? What happens if it is empty ([])? What happens if it is left out completely?**
 
-## Verify the behavior
+The dependency array tells React which values should trigger an effect again. An empty array runs the effect after mounting, with an additional setup/cleanup check in development Strict Mode. Without an array, the effect runs after every committed render.
 
-- On first load, the cart displays “Your cart is empty.”
-- Eight product cards appear; Wireless Mouse has a New badge and JavaScript Handbook has a Sale badge.
-- Click Wireless Mouse twice, then Water Bottle once. The message should display “Items added to cart: 3 (Last added: Water Bottle)”.
-- USB-C Hub and Laptop Sleeve appear faded, show Out of Stock and have disabled buttons.
-- Prices use the peso sign, thousands separator and two decimal places.
-- Resize the browser to check that the cards rearrange into fewer columns on smaller screens.
-- Refresh the page to reset the cart; persistence is not part of this exercise.
+**4. Why should we avoid sorting the original products array directly?**
+
+JavaScript's `.sort()` changes the array it is called on. Sorting the original array would change the default product order and could affect other components that use the same data. Sorting a copy keeps the original list unchanged.
+
+**5. Is the filtered product list better stored in its own state, or calculated from existing state during rendering? Explain your choice.**
+
+It is better to calculate it during rendering because it already depends on the products, debounced keyword, category, and sort order. Storing the same derived information in another state could make the displayed products inconsistent with the filters.
+
+## Behavior checklist (test in your browser before submission)
+
+| Action | Expected result |
+|---|---|
+| Initial page load | Showing 8 of 8 products; Your cart is empty. |
+| Type `mouse` or `MOUSE` | After 300 ms, only Wireless Mouse appears. |
+| Type rapidly | The search result stays on the previous keyword until a 300 ms pause. |
+| Select Books | JavaScript Handbook and React Essentials appear. |
+| Enter `react` with Books selected | Only React Essentials appears. |
+| Enter `mouse` with Books selected | No products found. |
+| Clear Filters, then Price: Low to High | Notebook Set first; Mechanical Keyboard last. |
+| Price: High to Low | Mechanical Keyboard first; Notebook Set last. |
+| Search `xyz` | Friendly empty-state message; Showing 0 of 8 products. |
+| Click Clear Filters | All controls reset immediately; all eight products return in their original order. |
+| Change the result count | Browser title becomes CvSU Mini Store (N results). |
+| Add Wireless Mouse, then Water Bottle | Cart count becomes 2; last added is Water Bottle. |
+| Change or clear filters after adding items | Cart count and last added item remain unchanged. |
+| Try USB-C Hub or Laptop Sleeve | Buttons are disabled, and the cart count does not change. |
+| Resize to a narrow mobile screen | Controls and cards reflow without horizontal scrolling. |
 
 ## Git and GitHub submission
 
-The ZIP includes a local Git repository with meaningful generated commits on `main`. Review and understand the code and make your own changes before submission. The included commits use a generator identity, not your personal account. Follow your instructor's academic integrity and Git authorship requirements.
+The supplied ZIP includes the local Git history. `main` preserves the Lab 3 version and `lab4-live-search` contains the Lab 4 extension. The latter branch is already checked out. The PDF wraps the branch name across lines; `lab4-live-search` is the valid hyphenated Git name.
 
-1. Install Git from https://git-scm.com/ if needed.
-2. In the project terminal, inspect the included history using `git log --oneline`.
-3. Configure your own identity for future commits:
+1. Review the source and commit history. The generated commits are not your own work; follow your instructor's requirements and make your own changes and commits where required.
 
    ```bash
+   git branch
+   git log --oneline main..lab4-live-search
    git config user.name "Your Name"
    git config user.email "your-github-email@example.com"
    ```
 
-4. Make any personal improvements or corrections, then commit them with `git add .` and `git commit -m "Describe your changes"`.
-5. Sign in to GitHub, create a new empty repository named `product-catalog`, and do not initialize it with a README, license or .gitignore.
-6. Connect and push the local project (replace YOUR-USERNAME):
+2. If you already have the GitHub repository from Lab 3, use that same URL. Otherwise, create an empty repository named `product-catalog` on GitHub. Do not initialize it with a README or license.
+3. Check the remote:
+
+   ```bash
+   git remote -v
+   ```
+
+   If no remote is listed, connect your repository (replace YOUR-USERNAME):
 
    ```bash
    git remote add origin https://github.com/YOUR-USERNAME/product-catalog.git
-   git push -u origin main
    ```
 
-7. Open your repository on GitHub and check that your files and commit history are visible. Submit its actual URL to your instructor.
+4. Push both branches:
 
-If the instructor requires you to make all four commits yourself, rebuild the project in a fresh repository using the same stages: setup, product data and component, callback and cart message, and styling. Do not represent generated commits as your own.
+   ```bash
+   git push -u origin main
+   git push -u origin lab4-live-search
+   ```
+
+   If you have made different commits in your own existing Lab 3 repo, do not force-push over them. Instead create the Lab 4 branch in your own repo, copy the changed files (`src/App.jsx`, `src/App.css`, `src/components/SearchBar.jsx`, and this README), make your own commits, and push both branches from there.
+
+5. On GitHub, select the `lab4-live-search` branch and verify the files and history. Submit the actual repository URL to your instructor. Both branches must be visible on GitHub.
+
+The Lab 3 guide questions remain available on the `main` branch (`git show main:README.md`).
